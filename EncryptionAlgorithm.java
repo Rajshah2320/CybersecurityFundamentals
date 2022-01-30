@@ -1,4 +1,7 @@
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -14,11 +17,14 @@ import day1.AffineCipher;
 import day1.MultiplicationCipher;
 import day2.DES;
 import day2.MD5;
+import day3.HMAC;
+import day3.RSA;
+import day3.SHA;
 
 public class EncryptionAlgorithm {
 
 	public static void main(String[] args) {
-
+/*
 		Scanner sc = new Scanner(System.in);
 
 		String plaintext = sc.nextLine();
@@ -64,12 +70,103 @@ public class EncryptionAlgorithm {
 				| IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		
-	
-		
+		}	
 		sc.close();
 
+*/
+	
+		/*
+		// path of the file that we want to encrypt
+				String textFile = "C:\\Users\\raj.shah\\eclipse-workspace\\EncryptionAlgorithms\\demo.txt";
+				// path of the encrypted file that we get as output
+				String encryptedData = "C:\\Users\\raj.shah\\eclipse-workspace\\EncryptionAlgorithms\\encrypted.txt";
+				// path of the decrypted file that we get as output
+				String decryptedData = "C:\\Users\\raj.shah\\eclipse-workspace\\EncryptionAlgorithms\\decrypted.txt";
+				
+				DES des=new DES();
+				des.encrypt(textFile, encryptedData);
+				
+				try {
+					String ciphertext= new String(Files.readAllBytes(Paths.get(encryptedData)));
+					String hash=MD5.getMd5(ciphertext);
+					
+//					System.out.println(hash);
+//					System.out.println(ciphertext);
+					
+					String message= hash + ciphertext;
+					
+					//System.out.println(message);
+					
+					String cipher_from_message=message.substring(32);
+					String hash_from_message=MD5.getMd5(cipher_from_message);
+					
+					if(!hash_from_message.equals(hash)) {
+						System.out.println("Invalid Hash");
+					}else {
+						System.out.println("Valid Hash , decrypting file");
+						des.decrypt(encryptedData, decryptedData);
+					}
+					
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+						
+				//des.decrypt(encryptedData, decryptedData);
+		
+		*/
+		
+		RSA rsa=new RSA();
+		String cipher=rsa.encrypt("This is plain text");
+		
+		System.out.println(cipher);
+		
+		String decrypt=rsa.decrypt(cipher);
+		
+		System.out.println(decrypt);
+		
+		
+		
+		String textFile = "C:\\Users\\raj.shah\\eclipse-workspace\\EncryptionAlgorithms\\demo.txt";
+		// path of the encrypted file that we get as output
+		String encryptedData = "C:\\Users\\raj.shah\\eclipse-workspace\\EncryptionAlgorithms\\encrypted.txt";
+		// path of the decrypted file that we get as output
+		String decryptedData = "C:\\Users\\raj.shah\\eclipse-workspace\\EncryptionAlgorithms\\decrypted.txt";	
+		
+		try {
+			DES des=new DES();
+			des.encrypt(textFile, encryptedData);
+			
+			String ciphertext= new String(Files.readAllBytes(Paths.get(encryptedData)));
+			String key="12345";
+			String hmac=HMAC.getHmac(ciphertext, key);
+			System.out.println(hmac);
+			
+			String message_sent=hmac + ciphertext;
+			
+			String hmac_received=message_sent.substring(0,hmac.length());
+			String ciphertext_received=message_sent.substring(hmac.length());
+			
+			String hmac_generated=HMAC.getHmac(ciphertext_received, key);
+			
+			if(hmac_generated.equals(hmac_received)){
+				System.out.println("HMAC verified , decrypting file");
+				des.decrypt(encryptedData, decryptedData);
+			}else {
+				System.out.println("HMAC verification failed");
+			}
+			
+		} catch (InvalidKeyException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 
 }
